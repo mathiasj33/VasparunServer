@@ -28,6 +28,15 @@ func (s *SortedStringFloatMap) Length() int {
 	return len(s.keys)
 }
 
+func indexOfString(e string, slice []string) int {
+	for i,e := range slice {
+		if e == slice[i] {
+			return i
+		}
+	}
+	return -1
+}
+
 func indexOfFloat(e float32, slice []float32) int {
 	for i,e := range slice {
 		if e == slice[i] {

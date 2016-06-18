@@ -15,42 +15,33 @@ func Init(username string, password string) {
 	handleError(err)
 }
 
-func SelectAllUsers() []string{
-	rows := getRows("SELECT Username FROM users")
-	defer rows.Close()
-
-	var username string
-	users := make([]string, 0)
-	for rows.Next() {
-		err := rows.Scan(&username)
-		handleError(err)
-		users = append(users, username)
-	}
-	return users
-}
-
 func AddUser(username string) {
 	executeQuery("INSERT INTO users VALUES(null, ?)", username)
 }
 
-func SelectUserDistance(username string) int {
-	return getInt(`SELECT Distance FROM users
+func ContainsUser(username string) bool {
+	rows := getRows("SELECT Username FROM Users WHERE Username = ?", username)
+	return getNumRows(rows) > 0
+}
+
+func SelectUserDistance(username string) float32 {
+	return getFloat(`SELECT Distance FROM users
 					JOIN distances
 					WHERE users.ID = distances.U_ID
 					AND users.Username = ?`, username)
 }
 
-func SelectAllUserDistances() SortedStringIntMap {
+func SelectAllUserDistances() SortedStringFloatMap {
 	rows := getRows(`SELECT Username, Distance FROM users 
 					JOIN distances
 					WHERE users.ID = distances.U_ID 
 					ORDER BY Distance DESC`)
 	defer rows.Close()
 	
-	distMap := NewSortedStringIntMap()
+	distMap := NewSortedStringFloatMap()
 	
 	var username string
-	var distance int
+	var distance float32
 	for rows.Next() {
 		err := rows.Scan(&username, &distance)
 		handleError(err)
@@ -59,15 +50,15 @@ func SelectAllUserDistances() SortedStringIntMap {
 	return *distMap
 }
 
-func SelectHighestDistance() int {
-	return getInt(`SELECT MAX(Distance) FROM distances`)
+func SelectHighestDistance() float32 {
+	return getFloat(`SELECT MAX(Distance) FROM distances`)
 }
 
 func SelectAverageDistance() float32 {
 	return getFloat("SELECT AVG(Distance) FROM distances")
 }
 
-func AddDistance(username string, distance int) {
+func AddDistance(username string, distance float32) {
 	id := getID(username)
 	executeQuery("INSERT INTO distances VALUES (null, ?, ?)", distance, id)
 }
@@ -78,7 +69,7 @@ func ContainsDistance(username string) bool {
 	return getNumRows(rows) > 0
 }
 
-func UpdateDistance(username string, distance int) {
+func UpdateDistance(username string, distance float32) {
 	id := getID(username)
 	fmt.Println(id)
 	if id == -1 {
