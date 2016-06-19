@@ -55,7 +55,7 @@ func SelectHighestDistance() float32 {
 }
 
 func SelectAverageDistance() float32 {
-	return getFloat("SELECT AVG(Distance) FROM distances")
+	return getFloat("SELECT ROUND(AVG(Distance), 1) FROM distances")
 }
 
 func AddDistance(username string, distance float32) {
@@ -111,7 +111,7 @@ func SelectBestTime(level int) float32 {
 }
 
 func SelectAverageTime(level int) float32 {
-	return getFloat("SELECT AVG(Time) FROM times WHERE Level = ?", level)
+	return getFloat("SELECT ROUND(AVG(Time), 1) FROM times WHERE Level = ?", level)
 }
 
 func AddTime(username string, level int, time float32) {

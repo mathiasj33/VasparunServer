@@ -1,4 +1,4 @@
-package main
+package main  //TODO: Zeichen die nicht gehen: :, $
 
 import (
 	"bytes"
@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func main() {
-	db.Init("root", "selorenus")
+	db.Init("root", "selorenus") //TODO: Username wird in Playerprefs oder so gespeichert - ist nur für einen PC
 
 	//ip := os.Getenv("OPENSHIFT_GO_IP") + ":" + os.Getenv("OPENSHIFT_GO_PORT")
 	ip := "localhost:8080"
@@ -20,14 +19,18 @@ func main() {
 
 func respondHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		op := r.FormValue("op") TESTEN
+		op := r.FormValue("op") //TODO: testen
+		username := r.FormValue("username")
+		level, _ := strconv.Atoi(r.FormValue("level"))
+		fmt.Println("level:", level)
+		
 		switch op {
 		case "ContainsUsername":
-			fmt.Fprint(w, db.ContainsUser(op)) TEXT SPLITTEN UND SO
+			fmt.Fprint(w, db.ContainsUser(username))
 		case "AddUser":
-			db.AddUser(op)
+			db.AddUser(username)
 		case "SelectUserDistance":
-			dist := db.SelectUserDistance(op)
+			dist := db.SelectUserDistance(username)
 			fmt.Fprint(w, dist)
 		case "SelectAllUserDistances":
 			m := db.SelectAllUserDistances()
@@ -37,7 +40,22 @@ func respondHandler(w http.ResponseWriter, r *http.Request) {
 		case "SelectAverageDistance":
 			fmt.Fprint(w, db.SelectAverageDistance())
 		case "UpdateOrAddDistance":
-			updateOrAddDistance(getStringAndFloat(op))
+			dist := r.FormValue("distance")
+			updateOrAddDistance(username, getFloat(dist))
+		case "SelectUserTime":
+			fmt.Fprint(w, db.SelectUserTime(username, level))
+		case "SelectAllUserTimes":
+			m := db.SelectAllUserTimes(level)
+			fmt.Fprint(w, createStringFromSortedMap(m))
+		case "SelectBestTime":
+			fmt.Fprint(w, db.SelectBestTime(level))
+		case "SelectAverageTime":
+			fmt.Fprint(w, db.SelectAverageTime(level))
+		case "ContainsTime":
+			fmt.Fprint(w, db.ContainsTime(username, level))
+		case "UpdateOrAddTime":
+			time := r.FormValue("time")
+			updateOrAddTime(username, level, getFloat(time))
 		}
 	}
 }
@@ -48,7 +66,7 @@ func createStringFromSortedMap(m db.SortedStringFloatMap) string {
 		name, dist := m.GetFromIndex(i)
 		distString := fmt.Sprintf("%v", dist)
 		buffer.WriteString(name)
-		buffer.WriteString("+")
+		buffer.WriteString(":")
 		buffer.WriteString(distString)
 
 		if i != m.Length()-1 {
@@ -58,11 +76,9 @@ func createStringFromSortedMap(m db.SortedStringFloatMap) string {
 	return buffer.String()
 }
 
-func getStringAndFloat(text string) (string, float32) {
-	arr := strings.Split(text, "+")
-	s := arr[0]
-	f, _ := strconv.ParseFloat(arr[1], 32)
-	return s, float32(f)
+func getFloat(s string) float32 {
+	f, _ := strconv.ParseFloat(s, 32)
+	return float32(f)
 }
 
 func updateOrAddDistance(username string, dist float32) {
@@ -70,5 +86,13 @@ func updateOrAddDistance(username string, dist float32) {
 		db.UpdateDistance(username, dist)
 	} else {
 		db.AddDistance(username, dist)
+	}
+}
+
+func updateOrAddTime(username string, level int, time float32) {
+	if db.ContainsTime(username, level) {
+		db.UpdateTime(username, level, time)
+	} else {
+		db.AddTime(username, level, time)
 	}
 }
