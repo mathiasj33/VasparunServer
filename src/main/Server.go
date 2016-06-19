@@ -19,10 +19,9 @@ func main() {
 
 func respondHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		op := r.FormValue("op") //TODO: testen
+		op := r.FormValue("op")
 		username := r.FormValue("username")
 		level, _ := strconv.Atoi(r.FormValue("level"))
-		fmt.Println("level:", level)
 		
 		switch op {
 		case "ContainsUsername":

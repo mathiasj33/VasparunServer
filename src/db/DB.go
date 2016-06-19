@@ -11,7 +11,7 @@ var db *sql.DB
 
 func Init(username string, password string) {
 	var err error
-	db, err = sql.Open("mysql", username+":"+password+"@tcp(localhost:3307)/vasparun")
+	db, err = sql.Open("mysql", username+":"+password+"@tcp(localhost:3307)/vasparun?charset=utf8")
 	handleError(err)
 }
 
