@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	db.Init("root", "selorenus") //TODO: Username wird in Playerprefs oder so gespeichert - ist nur fÃ¼r einen PC
+	db.Init("root", "password") //TODO: Username wird in Playerprefs oder so gespeichert - ist nur für einen PC. Replace the password and encode it.
 
 	//ip := os.Getenv("OPENSHIFT_GO_IP") + ":" + os.Getenv("OPENSHIFT_GO_PORT")
 	ip := "localhost:8080"
